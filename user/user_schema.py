@@ -8,6 +8,6 @@ class CreateUserForm(BaseModel):
     phoneNo : str
     
 class UserAuth(BaseModel):
-    email: str
+    userId: str
     password: str
 
