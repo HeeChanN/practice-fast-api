@@ -2,14 +2,15 @@ from fastapi import FastAPI
 import models
 from database import engine
 
+from user import user_api
+
 models.Base.metadata.create_all(bind=engine) #db 생성
 
-from user.api import users
 
 app = FastAPI()
 
-app.include_router(users.app, tags=["board"])
+app.include_router(user_api.app, tags=["유저"])
 
 @app.get("/")
 def read_root():
-    return {"Hello":"Worldv"}
+    return {"캡스톤":"씨펫"}
