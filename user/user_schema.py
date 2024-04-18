@@ -11,3 +11,8 @@ class UserAuth(BaseModel):
     userId: str
     password: str
 
+class UserResponse(BaseModel):
+    userId: str
+    email : str
+    name : str
+    phoneNo : str

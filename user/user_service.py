@@ -3,24 +3,15 @@ from sqlalchemy.orm import Session
 from models import User
 from user.user_schema import CreateUserForm,UserAuth
 from passlib.context import CryptContext
+from utils import create_access_token
 
-from jose import jwt
-import os
-from datetime import timedelta, datetime
-from dotenv import load_dotenv
-
-load_dotenv()
-
-ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated = "auto")
 
 # 회원가입
 def create_user(new_user: CreateUserForm, db: Session):
     
-    checkUser = get_user(new_user.email, db)
+    checkUser = get_user(new_user.userId, db)
     if checkUser:
         return False
     user = User(
@@ -46,12 +37,7 @@ def verify_user_info(form_data: UserAuth, db: Session):
         return False
     
     # Response 발급
-    data = {
-        "sub": check_user.userId,
-        "exp": datetime.utcnow() + timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
-    }
-    
-    access_token = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
+    access_token = create_access_token(check_user.userId)
     
     return {
         "access_token": access_token,
@@ -61,5 +47,5 @@ def verify_user_info(form_data: UserAuth, db: Session):
     }
 
 # 단일 유저 조회
-def get_user(email: str, db: Session):
-    return db.query(User).filter(User.email == email).first()
+def get_user(userId: str, db: Session):
+    return db.query(User).filter(User.userId == userId).first()

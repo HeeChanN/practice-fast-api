@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
-from user.user_schema import CreateUserForm, UserAuth
+from user.user_schema import CreateUserForm, UserAuth, UserResponse
 from database import get_db
 from fastapi.responses import JSONResponse
 from user import user_service
-
+from utils import verify_token
 
 app = APIRouter(prefix="/api/user")
 
@@ -26,3 +26,14 @@ async def login_api(form_data: UserAuth, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="잘못된 아이디 혹은 비밀번호")
 
     return response
+
+@app.get("/userInfo", summary="내정보 조회")
+async def get_user_info(userId: str = Depends(verify_token),db: Session = Depends(get_db)):
+    
+    user = user_service.get_user(userId, db)
+    return UserResponse(
+        userId = user.userId,
+        email = user.email,
+        name = user.name,
+        phoneNo = user.phoneNo 
+    )
